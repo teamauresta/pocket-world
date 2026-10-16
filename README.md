@@ -42,6 +42,17 @@ only when running its optional source qualification tests.
 | `scripts/`, `review/` | Build tools and review harnesses |
 | `docs/` | Technical notes and historical qualification limits |
 
+## License
+
+Original Pocket World code is licensed under the [ISC License](LICENSE).
+
+Third-party code, textures, and other assets retain their respective licenses
+and attribution requirements; the ISC license does not replace those terms.
+See the notices in `licenses/` and the credits below. Supplied and derived
+wildlife models are excluded from this repository and are not covered by the
+project's ISC license. Their use or redistribution requires separate permission
+under the applicable asset terms.
+
 ## Assets and credits
 
 Application source and third-party assets have separate licensing requirements.
