@@ -1,0 +1,21 @@
+{
+  "name": "pocket-world",
+  "version": "1.0.0",
+  "description": "A living island diorama built with Three.js and WebGL",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "node --test src/**/*.test.js",
+    "build:lab": "vite build --config vite.lab.config.js",
+    "build:artifact": "vite build && node scripts/publish.mjs"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "vite": "^6.4.4"
+  },
+  "type": "module",
+  "private": true
+}

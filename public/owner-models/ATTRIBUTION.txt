@@ -1,0 +1,28 @@
+Model 84B - Manta Ray Swimming
+Author: DigitalLife3D https://sketchfab.com/DigitalLife3D
+Source: https://sketchfab.com/3d-models/model-84b-manta-ray-swimming-73e539c7ac5940e5aad4c58257df9725
+Embedded licence: CC-BY-NC 4.0 https://creativecommons.org/licenses/by-nc/4.0/
+Private non-commercial owner preview only; no commercial/public clearance claimed. Original supplied GLB unchanged; runtime scale, skeleton playback and underwater shader adapted.
+Original SHA256: 14e689961c085a4bba5f284a5c1994528b1b6c05df1a42ced2133a24ee7208fd
+
+
+Dove Bird Rigged (supplied file dove_bird_rigged.glb; packaged bird.glb)
+Author: FourthGreen https://sketchfab.com/FourthGreen
+Source: https://sketchfab.com/3d-models/dove-bird-rigged-6b91be2a28fb4404a2d57d5ca98bd4dc
+Embedded licence: CC-BY 4.0 https://creativecommons.org/licenses/by/4.0/
+Original supplied appearance is orange-breasted, not a verified white dove. Original GLB unchanged. Runtime scale/orientation, real animation and flight/landing/roost visual adaptation applied.
+Original SHA256: 60456c59bbe5585d5346439330dbf80ef13ae15cd932bbb3be4523c6bc1ce90e
+
+Tuna Fish (supplied tuna_fish.glb; packaged tuna.glb)
+Author: GoldenZtuff https://sketchfab.com/dhjwdwd
+Source: https://sketchfab.com/3d-models/tuna-fish-c5fad940863f47f784d792ca95e16b42
+Embedded licence: CC-BY 4.0 https://creativecommons.org/licenses/by/4.0/
+Original GLB unchanged; runtime scale, real skin animation, underwater shading and distance fallback adapted. Two existing school slots; not a new adult-tuna ecological controller.
+Original SHA256: 6d0d719d5196c744b7813a6079c6fe245126f1c6963d91a5285d62cf5ede28c0
+
+Stag.glb and Deer.glb (packaged stag.glb and deer.glb)
+Owner-supplied originals. No author/licence embedded in these files; no independent public redistribution licence is asserted. Private owner preview only. Original files unchanged; runtime orientation/scale, authored clips and measured hoof correction adapted. Small deer is scaled Deer, not a separately authored juvenile.
+Stag SHA256: be287c4e8bd0e20d84d50b73e8eda7a9cfa94b599b66a705b9eed968ffbb9c58
+Deer SHA256: 19a3ee311cbec9f0dfb5fc5038c1c49455c7d76a14e7678c61978672e3bddf25
+
+All supplied asset licence strings are preserved metadata, not a new licence grant. This entire preview remains private/non-commercial because it includes the NC manta and owner assets without independently established redistribution terms.

@@ -1,0 +1,126 @@
+[
+  {
+    "species": "ash",
+    "sizePerCell": 512,
+    "variants": 3,
+    "source": "public/tex/leaf_ash.webp",
+    "sourceSize": [
+      512,
+      512
+    ],
+    "sourceSha256": "767044a899167393b68a110229429e47feffcbdbc9342360f0d69deccdacc00b",
+    "color": "ash-512-color.png",
+    "colorSha256": "b748822f9df401370099ee15262c9ae45c6ba2405d8011cb97897bd8c9c2c34d",
+    "provenance": "Three colour-processed variants from existing EZ-Tree512 source, reconstructed to output resolution; no new photographic detail/native1024 provenance claim."
+  },
+  {
+    "species": "ash",
+    "sizePerCell": 1024,
+    "variants": 3,
+    "source": "public/tex/leaf_ash.webp",
+    "sourceSize": [
+      512,
+      512
+    ],
+    "sourceSha256": "767044a899167393b68a110229429e47feffcbdbc9342360f0d69deccdacc00b",
+    "color": "ash-1024-color.png",
+    "colorSha256": "9325d2a045b4713c84b61c71bd5f10f30e63a6a6141aa807bf81f9f394fa9873",
+    "provenance": "Three colour-processed variants from existing EZ-Tree512 source, reconstructed to output resolution; no new photographic detail/native1024 provenance claim.",
+    "normal": "ash-1024-normal.png",
+    "normalSha256": "7d220e30fb1ddbe3173d262ed7fba70cfb7be74e60e2efaf301bf04a35589419",
+    "normalMethod": "Image-derived luminance gradient, not measured physical normals."
+  },
+  {
+    "species": "aspen",
+    "sizePerCell": 512,
+    "variants": 3,
+    "source": "public/tex/leaf_aspen.webp",
+    "sourceSize": [
+      512,
+      512
+    ],
+    "sourceSha256": "f015f01ea959f75d18eb875b46b3ea811eed45b0846ac86e0bb509f0cf266106",
+    "color": "aspen-512-color.png",
+    "colorSha256": "af4b71129b83bcd848fb55e3d3caab76242e77a0e069cc0b4d4c15373566379a",
+    "provenance": "Three colour-processed variants from existing EZ-Tree512 source, reconstructed to output resolution; no new photographic detail/native1024 provenance claim."
+  },
+  {
+    "species": "aspen",
+    "sizePerCell": 1024,
+    "variants": 3,
+    "source": "public/tex/leaf_aspen.webp",
+    "sourceSize": [
+      512,
+      512
+    ],
+    "sourceSha256": "f015f01ea959f75d18eb875b46b3ea811eed45b0846ac86e0bb509f0cf266106",
+    "color": "aspen-1024-color.png",
+    "colorSha256": "24d1e902b05de1d2d8a958797b8d7bc924c39d894071bf6428fa9f658eefa7a5",
+    "provenance": "Three colour-processed variants from existing EZ-Tree512 source, reconstructed to output resolution; no new photographic detail/native1024 provenance claim.",
+    "normal": "aspen-1024-normal.png",
+    "normalSha256": "a23f268c2e5f4646a13cc01c6b7b9ab1b0500a2c046d027fc4a831945a78b8fc",
+    "normalMethod": "Image-derived luminance gradient, not measured physical normals."
+  },
+  {
+    "species": "oak",
+    "sizePerCell": 512,
+    "variants": 3,
+    "source": "public/tex/leaf_oak.webp",
+    "sourceSize": [
+      512,
+      512
+    ],
+    "sourceSha256": "991fe30c49fece3edad14a1d31c46128312928b264116a1bb8f838eab79b94b6",
+    "color": "oak-512-color.png",
+    "colorSha256": "892a67e985c08e5ab5da8e0cb41f26d424cf41889c0ba3921be4ddc99a1c44bd",
+    "provenance": "Three colour-processed variants from existing EZ-Tree512 source, reconstructed to output resolution; no new photographic detail/native1024 provenance claim."
+  },
+  {
+    "species": "oak",
+    "sizePerCell": 1024,
+    "variants": 3,
+    "source": "public/tex/leaf_oak.webp",
+    "sourceSize": [
+      512,
+      512
+    ],
+    "sourceSha256": "991fe30c49fece3edad14a1d31c46128312928b264116a1bb8f838eab79b94b6",
+    "color": "oak-1024-color.png",
+    "colorSha256": "1e1ca3a86390b00154ae67a5e183e911dfe79ede833d52737348a966f1db916d",
+    "provenance": "Three colour-processed variants from existing EZ-Tree512 source, reconstructed to output resolution; no new photographic detail/native1024 provenance claim.",
+    "normal": "oak-1024-normal.png",
+    "normalSha256": "533a1d093ed04c4cd6fde8a541768c43e74991bbcf2722c5d9a318c1e38c8e54",
+    "normalMethod": "Image-derived luminance gradient, not measured physical normals."
+  },
+  {
+    "species": "pine",
+    "sizePerCell": 512,
+    "variants": 3,
+    "source": "public/tex/leaf_pine.webp",
+    "sourceSize": [
+      512,
+      512
+    ],
+    "sourceSha256": "c946ed3df188c7cb756880e1a662e17cb438f163d01be52e1d3e5f4039d27ec8",
+    "color": "pine-512-color.png",
+    "colorSha256": "8a6cbe51da020e42e786365cba3e9c908f9aaa16e027b518169accd334c43191",
+    "provenance": "Three colour-processed variants from existing EZ-Tree512 source, reconstructed to output resolution; no new photographic detail/native1024 provenance claim."
+  },
+  {
+    "species": "pine",
+    "sizePerCell": 1024,
+    "variants": 3,
+    "source": "public/tex/leaf_pine.webp",
+    "sourceSize": [
+      512,
+      512
+    ],
+    "sourceSha256": "c946ed3df188c7cb756880e1a662e17cb438f163d01be52e1d3e5f4039d27ec8",
+    "color": "pine-1024-color.png",
+    "colorSha256": "e5905fe88ac8d13db6de0934e5203137ca11c8e6f5e6265d77b2e757623cbfcf",
+    "provenance": "Three colour-processed variants from existing EZ-Tree512 source, reconstructed to output resolution; no new photographic detail/native1024 provenance claim.",
+    "normal": "pine-1024-normal.png",
+    "normalSha256": "27bb793537dc5baa3f4d4da3dca9a05461a9760381ad5c01777dde049736b088",
+    "normalMethod": "Image-derived luminance gradient, not measured physical normals."
+  }
+]

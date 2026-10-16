@@ -1,0 +1,153 @@
+// Geometry-only forest detail. All random decoration is isolated from scatter RNG.
+import * as THREE from 'three';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { mulberry32 } from '../core/noise.js';
+import { addLianaAttributes, ownLianaMaterials } from './liana-wind.js';
+import { prepareLeafMotion } from './materials.js';
+import { VEGETATION_ATTRIBUTES } from './detail-contract.js';
+
+// Distance to a measured convex support envelope, not a random darkening value.
+// 26 support planes are fitted to ALL card vertices; depth is constant per card.
+export function crownAttributes(geometry, seed = 1, flowering = false) {
+  const p = geometry.attributes.position, rng = mulberry32(seed ^ 0x73b126);
+  const dirs = [], planes = [];
+  for(let x=-1;x<=1;x++) for(let y=-1;y<=1;y++) for(let z=-1;z<=1;z++) {
+    if(!x&&!y&&!z) continue;
+    const d = new THREE.Vector3(x,y,z).normalize();let lo=Infinity,hi=-Infinity;
+    for(let i=0;i<p.count;i++){const a=d.x*p.getX(i)+d.y*p.getY(i)+d.z*p.getZ(i);lo=Math.min(lo,a);hi=Math.max(hi,a);}
+    dirs.push(d);planes.push([lo,hi]);
+  }
+  const depth=[],variant=[],colors=[];let warmCards=0, blossomCards=0;
+  const c=new THREE.Vector3();
+  for(let i=0;i<p.count;i+=4){
+    c.set(0,0,0);for(let k=0;k<4;k++) c.add(new THREE.Vector3().fromBufferAttribute(p,i+k));c.multiplyScalar(.25);
+    let dep=1;
+    for(let k=0;k<dirs.length;k++){const [lo,hi]=planes[k],a=c.dot(dirs[k]);dep=Math.min(dep,2*Math.min(hi-a,a-lo)/Math.max(hi-lo,1e-5));}
+    dep=THREE.MathUtils.clamp(dep,0,1);
+    const v=Math.floor(rng()*3),brightness=.85+rng()*.3,hue=(rng()-.5)*.12, rarity=rng();
+    const col=new THREE.Color().setRGB(brightness*(1+hue),brightness,brightness*(1-hue));
+    if(rarity<.025){col.setRGB(brightness*1.15,brightness*.72,brightness*.42);warmCards++;}
+    if(flowering&&rarity>.48){col.setRGB(1,.64+rng()*.25,.75+rng()*.2);blossomCards++;}
+    for(let k=0;k<4;k++){depth.push(dep);variant.push(v);colors.push(col.r,col.g,col.b);}
+  }
+  geometry.setAttribute(VEGETATION_ATTRIBUTES.crownDepth,new THREE.Float32BufferAttribute(depth,1));
+  geometry.setAttribute(VEGETATION_ATTRIBUTES.leafVariant,new THREE.Float32BufferAttribute(variant,1));
+  geometry.setAttribute(VEGETATION_ATTRIBUTES.color,new THREE.Float32BufferAttribute(colors,3));
+  geometry.userData.crown={method:'26-plane convex support envelope, card-centre distance / half plane separation',cardCount:p.count/4,warmCards,blossomCards};
+}
+
+function taperTube(points,radius,segments=6,radial=5){
+  const curve=new THREE.CatmullRomCurve3(points),g=new THREE.TubeGeometry(curve,segments,1,radial,false),p=g.attributes.position;
+  for(let i=0;i<p.count;i++){
+    const t=Math.floor(i/(radial+1))/segments,center=curve.getPointAt(t),r=radius*(1-.87*t);
+    p.setXYZ(i,center.x+(p.getX(i)-center.x)*r,center.y+(p.getY(i)-center.y)*r,center.z+(p.getZ(i)-center.z)*r);
+  }
+  g.computeVertexNormals();return g;
+}
+
+export function addRootGeometry(branches,{seed,kind='ordinary',rootReach=.065}={}){
+  const rng=mulberry32(seed^0x118832),parts=[branches],roots=3+Math.floor(rng()*3),buttress=kind==='broadleaf'||kind==='fig';
+  const p=branches.attributes.position;
+  // A genuine base flare, with every low stem/root kept inside a conservative
+  // normalized radius (world scale max 14.95 => <1.05, old broadleaf radius 1.6).
+  for(let i=0;i<p.count;i++)if(p.getY(i)<.14){const f=1+.8*Math.pow(Math.max(0,1-p.getY(i)/.14),2);p.setX(i,p.getX(i)*f);p.setZ(i,p.getZ(i)*f);}
+  for(let i=0;i<roots;i++){
+    const a=i/roots*Math.PI*2+rng()*.35,dir=new THREE.Vector3(Math.cos(a),0,Math.sin(a));
+    const reach=rootReach*(.8+rng()*.2);
+    parts.push(taperTube([new THREE.Vector3(0,buttress?.16:.055,0),dir.clone().multiplyScalar(reach*.45).setY(.025),dir.clone().multiplyScalar(reach).setY(-.012)],buttress?.013:.009,7,5));
+    if(buttress){
+      const side=new THREE.Vector3(-dir.z,0,dir.x).multiplyScalar(.006),a0=new THREE.Vector3(0,.19,0),b=dir.clone().multiplyScalar(reach).setY(-.009),c=dir.clone().multiplyScalar(.012);
+      const g=new THREE.BufferGeometry(),v=[];for(const s of [-1,1])for(const q of [a0,b,c]){const t=q.clone().addScaledVector(side,s);v.push(t.x,t.y,t.z);}
+      g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('uv',new THREE.Float32BufferAttribute([0,1,1,0,0,0,0,1,1,0,0,0],2));g.setIndex([0,1,2,3,5,4,0,3,4,0,4,1,1,4,5,1,5,2]);g.computeVertexNormals();parts.push(g);
+    }
+  }
+  let aerialRoots=0;
+  if(kind==='fig')for(let i=0;i<5;i++){
+    const a=i*2.4,r=.035+rng()*.02;
+    // Hug the occupied trunk, rather than making uncollided new pillars.
+    const top=new THREE.Vector3(Math.cos(a)*r,.57+rng()*.17,Math.sin(a)*r);
+    parts.push(taperTube([top,new THREE.Vector3(Math.cos(a+.7)*r,.35,Math.sin(a+.7)*r),new THREE.Vector3(Math.cos(a)*r,.04,Math.sin(a)*r)],.0045,12,4));aerialRoots++;
+  }
+  // Clamp only the animal-height woody envelope, never the canopy branches.
+  for(const g of parts){const a=g.attributes.position;for(let i=0;i<a.count;i++)if(a.getY(i)<.26){const r=Math.hypot(a.getX(i),a.getZ(i));if(r>.069){a.setX(i,a.getX(i)*.069/r);a.setZ(i,a.getZ(i)*.069/r);}}g.computeVertexNormals();}
+  const merged=mergeGeometries(parts,false);for(const g of parts)g.dispose();
+  merged.userData.roots={tubes:roots,buttresses:buttress?roots:0,aerialRoots,lowEnvelopeRadius:.069};
+  return merged;
+}
+
+// Sparse real-tree-to-real-tree lianas, merged to two draw calls. No ground
+// log scatter is added: it would invalidate previously qualified animal routes.
+export function buildLianas(sites,hf,barkMaterial,leafMaterial){
+  const wood=[],cards=[],links=[],used=new Set();
+  const jungle=sites.filter(s=>s.biome.jungle>.55&&s.species!=='bush');
+  for(const a of jungle){
+    if(links.length>=12||used.has(a.id))continue;
+    const b=jungle.filter(s=>s.id!==a.id&&!used.has(s.id)).map(s=>({s,d:Math.hypot(s.x-a.x,s.z-a.z)})).filter(v=>v.d>3&&v.d<9).sort((u,v)=>u.d-v.d)[0]?.s;
+    if(!b)continue;
+    const A=a.attach.clone(),B=b.attach.clone(),mid=A.clone().lerp(B,.5);mid.y-=.75;
+    const curve=new THREE.CatmullRomCurve3([A,A.clone().lerp(mid,.5),mid,B.clone().lerp(mid,.5),B]);
+    let clearance=Infinity;
+    for(let k=0;k<=48;k++){const p=curve.getPoint(k/48);clearance=Math.min(clearance,p.y-hf.heightAt(p.x,p.z));}
+    if(clearance<3.5)continue;
+    const start=[...a.branchBaseXZ,a.branchLocalHeight],end=[...b.branchBaseXZ,b.branchLocalHeight];
+    const stem=new THREE.TubeGeometry(curve,22,.026,5,false);
+    addLianaAttributes(stem,start,end,Array.from({length:stem.attributes.position.count},(_,i)=>Math.floor(i/6)/22));
+    wood.push(stem);
+    const g=new THREE.BufferGeometry(),v=[],uv=[],ix=[];
+    for(let k=1;k<18;k++){
+      const c=curve.getPoint(k/18),angle=k*2.4,dx=Math.cos(angle)*.18,dz=Math.sin(angle)*.18,n=v.length/3;
+      v.push(c.x,c.y,c.z,c.x+dx,c.y-.28,c.z+dz,c.x+dx*1.6,c.y-.24,c.z+dz*1.6,c.x+dx*.6,c.y+.04,c.z+dz*.6);
+      uv.push(0,1,0,0,1,0,1,1);ix.push(n,n+1,n+2,n,n+2,n+3);
+    }
+    g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(ix);g.computeVertexNormals();crownAttributes(g,links.length+177);
+    addLianaAttributes(g,start,end,Array.from({length:v.length/3},(_,i)=>(Math.floor(i/4)+1)/18));
+    prepareLeafMotion(g);
+    // Rigid centre rotation: constant endpoint mix and pivot on each card.
+    for(let i=0;i<g.attributes.position.count;i+=4){
+      const c=new THREE.Vector3();for(let j=0;j<4;j++)c.add(new THREE.Vector3().fromBufferAttribute(g.attributes.position,i+j));c.multiplyScalar(.25);
+      for(let j=0;j<4;j++)g.attributes.aLeafPivot.setXYZ(i+j,c.x,c.y,c.z);
+    }
+    cards.push(g);
+    const reference=s=>({siteId:s.id,treeMesh:s.branchMesh,instance:s.instance,vertex:s.branchVertex,baseXZ:s.branchBaseXZ.slice(),branchLocalHeight:s.branchLocalHeight});
+    links.push({from:a.id,to:b.id,start:A.toArray(),end:B.toArray(),startRef:reference(a),endRef:reference(b),stemRange:[links.length*138,(links.length+1)*138],cardRange:[links.length*68,(links.length+1)*68],minimumSampledGroundClearance:clearance});used.add(a.id);used.add(b.id);
+  }
+  const group=new THREE.Group();group.name='canopy-lianas';
+  for(const [parts,mat,name]of [[wood,barkMaterial,'liana-stems'],[cards,leafMaterial,'liana-leaves']])if(parts.length){
+    const g=mergeGeometries(parts,false),owned=ownLianaMaterials(mat),mesh=new THREE.Mesh(g,owned.color);mesh.name=name;mesh.castShadow=true;mesh.receiveShadow=true;mesh.customDepthMaterial=owned.depth;mesh.customDistanceMaterial=owned.distance;mesh.userData.detail={role:name==='liana-leaves'?'liana-cards':'liana-stems',crownClass:'per-link support envelope; not a tree crown'};group.add(mesh);for(const p of parts)p.dispose();
+  }
+  group.userData.links=links;return group;
+}
+
+const blossomMaps=new Map();
+export function floweringTexture(quality='high'){
+  const n=quality==='low'?512:1024;if(blossomMaps.has(n))return blossomMaps.get(n);
+  // Original cream/pink five-petal rosette silhouette; CPU DataTexture needs no DOM.
+  const data=new Uint8Array(n*n*4);
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++){
+    const u=(x+.5)/n*2-1,v=(y+.5)/n*2-1,a=Math.atan2(v,u),r=Math.hypot(u,v),edge=.64+.20*Math.cos(a*5),i=(y*n+x)*4;
+    const center=Math.exp(-r*r*90),vein=.94+.06*Math.cos(a*15);
+    data[i]=Math.round(255*vein);data[i+1]=Math.round((231-65*center)*vein);data[i+2]=Math.round((236-180*center)*vein);data[i+3]=Math.round(255*THREE.MathUtils.clamp((edge-r)*n/2,0,1));
+  }
+  const blossomMap=new THREE.DataTexture(data,n,n);blossomMap.name='flowering-rosette';blossomMap.colorSpace=THREE.SRGBColorSpace;blossomMap.magFilter=THREE.LinearFilter;blossomMap.minFilter=THREE.LinearMipmapLinearFilter;blossomMap.generateMipmaps=true;blossomMap.needsUpdate=true;blossomMaps.set(n,blossomMap);return blossomMap;
+}
+
+// A few complete bare dead snags stand independently inside existing uphill
+// occupied footprints. Live canopies/shelter/perch records remain untouched.
+export function buildSnagAccents(sites,material){
+  const parts=[],records=[];
+  for(const site of sites){
+    if(records.length>=4||site.species==='bush'||site.biome.h<8||site.biome.slope<.045||site.biome.glade>.05||site.biome.river<3)continue;
+    const a=new THREE.Vector3(site.x+.25,site.y,site.z-.18),b=a.clone().add(new THREE.Vector3(.06,4.7,0));
+    parts.push(taperTube([a,a.clone().add(new THREE.Vector3(-.035,2.1,.02)),b],.13,16,7));
+    for(const [dx,dz,h] of [[.40,.16,3.4],[-.36,.22,3.05],[.22,-.34,4.15]]){
+      const joint=a.clone().add(new THREE.Vector3(.015,h-.5,0)),tip=a.clone().add(new THREE.Vector3(dx,h,dz));
+      parts.push(taperTube([joint,joint.clone().lerp(tip,.6),tip],.046,6,5));
+    }
+    // Broken fork at the top, deliberately not a green canopy/leaf billboard.
+    parts.push(taperTube([b.clone().add(new THREE.Vector3(0,-.32,0)),b.clone().add(new THREE.Vector3(.11,.12,.09))],.038,3,5));
+    records.push({siteId:site.id,radiusFromTreeBase:.75,height:4.82,kind:'independent-bare-dead-snag',liveCanopyRetained:true});
+  }
+  const group=new THREE.Group();group.name='trunk-snag-accents';
+  if(parts.length){const g=mergeGeometries(parts,false),m=new THREE.Mesh(g,material);m.name='broken-side-stems';m.castShadow=true;m.receiveShadow=true;group.add(m);for(const p of parts)p.dispose();}
+  group.userData.accents=records;return group;
+}

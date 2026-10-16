@@ -1,0 +1,109 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "PersistentVolumeClaim",
+      "metadata": {
+        "name": "assets",
+        "namespace": "pocket-world-preview",
+        "labels": {
+          "app": "pocket-world",
+          "preview": "private"
+        }
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "storageClassName": "local-path",
+        "resources": {
+          "requests": {
+            "storage": "1Gi"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "metadata": {
+        "name": "server",
+        "namespace": "pocket-world-preview",
+        "labels": {
+          "app": "pocket-world",
+          "preview": "private"
+        }
+      },
+      "data": {
+        "server.py": "\"\"\"Private static preview; immutable release mounted read-only, no directory listings.\"\"\"\nfrom http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer\nfrom urllib.parse import unquote, urlsplit\nfrom functools import partial\nimport os\n\n\nclass Handler(SimpleHTTPRequestHandler):\n    def do_GET(self):\n        if any(part.startswith('.') for part in unquote(urlsplit(self.path).path).split('/')):\n            self.send_error(403)\n            return\n        super().do_GET()\n\n    def do_HEAD(self):\n        if any(part.startswith('.') for part in unquote(urlsplit(self.path).path).split('/')):\n            self.send_error(403)\n            return\n        super().do_HEAD()\n\n    def list_directory(self, path):\n        self.send_error(403)\n        return None\n\n    def end_headers(self):\n        self.send_header('Cache-Control', 'no-cache')\n        self.send_header('X-Content-Type-Options', 'nosniff')\n        super().end_headers()\n\n\nif __name__ == '__main__':\n    ThreadingHTTPServer(('0.0.0.0', 8080), partial(Handler, directory=os.environ['SITE_ROOT'])).serve_forever()\n"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "release-upload",
+        "namespace": "pocket-world-preview",
+        "labels": {
+          "app": "pocket-world",
+          "preview": "private"
+        }
+      },
+      "spec": {
+        "restartPolicy": "Never",
+        "securityContext": {
+          "runAsNonRoot": true,
+          "runAsUser": 1000,
+          "runAsGroup": 1000,
+          "fsGroup": 1000
+        },
+        "containers": [
+          {
+            "name": "upload",
+            "image": "python@sha256:423ed6ab25b1921a477529254bfeeabf5855151dc2c3141699a1bfc852199fbf",
+            "command": [
+              "python",
+              "-c",
+              "import signal; signal.pause()"
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "50m",
+                "memory": "64Mi"
+              },
+              "limits": {
+                "cpu": "500m",
+                "memory": "512Mi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "assets",
+                "mountPath": "/site"
+              }
+            ],
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              }
+            }
+          }
+        ],
+        "volumes": [
+          {
+            "name": "assets",
+            "persistentVolumeClaim": {
+              "claimName": "assets"
+            }
+          }
+        ],
+        "automountServiceAccountToken": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+import fs from 'node:fs';import {Fauna} from '../src/fauna/animals.js';import {Heightfield} from '../src/world/heightfield.js';import {SpatialHash} from '../src/veg/scatter.js';
+const w=JSON.parse(fs.readFileSync('review/land-fix-evidence/world.json')),h=new SpatialHash();w.hash.forEach(x=>h.add(...x));const hf=new Heightfield(),f=new Fauna(hf,h,{coverHash:null});f.cover=w.cover;
+f.update(45,45,{rain:1,wind:.5,wet:1});const stag=f.agents[2],source=[stag.pos.x-3,hf.heightAt(stag.pos.x-3,stag.pos.y),stag.pos.y],before=f.snapshot();f.onStrike({position:source,time:45,seed:719});const frames=[];
+for(let k=0;k<80;k++){f.update(.1,45+(k+1)/10,{rain:1,wind:.5,wet:1});frames.push(f.snapshot());}
+const summary=[];for(const id of [2,3,4,5,6]){const a=before.agents[id],dx=a.position[0]-source[0],dz=a.position[2]-source[2],gain=s=>((s.position[0]-a.position[0])*dx+(s.position[2]-a.position[2])*dz)/Math.hypot(dx,dz);const row={id,gain4:gain(frames[39].agents[id]),gain6:gain(frames[59].agents[id]),blocked:frames[39].agents[id].blocked,escape:frames[39].agents[id].escape};summary.push(row);console.log(JSON.stringify(row));}
+fs.writeFileSync('review/deer-escape-repair.json',JSON.stringify({before,source,frames,summary},null,2));

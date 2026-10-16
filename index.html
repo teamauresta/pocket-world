@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pocket World</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Ctext y=%2726%27 font-size=%2726%27%3E🌴%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: full-bleed WebGL canvas; a brass museum plaque top-left; quiet controls along the bottom edge. */
+:root {
+  --backdrop: #9fb0bf;
+  --ink: #f4f2ec;
+  --ink-soft: rgba(244, 242, 236, 0.74);
+  --glass: rgba(14, 22, 28, 0.52);
+  --glass-line: rgba(255, 255, 255, 0.14);
+  --brass-hi: #e3cb94;
+  --brass-lo: #a9864a;
+  --brass-ink: #2b2112;
+  --font-display: "Marcellus", "Trajan Pro", Georgia, serif;
+  --font-ui: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+[hidden] { display:none !important; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--backdrop); color: var(--ink); font-family: var(--font-ui); overflow: hidden; -webkit-tap-highlight-color: transparent; }
+#app { position: fixed; inset: 0; }
+#app canvas { display: block; width: 100%; height: 100%; touch-action: none; outline: none; }
+
+.plaque {
+  position: fixed; left: 16px; top: calc(env(safe-area-inset-top, 0px) + 16px);
+  padding: 10px 16px 9px; border-radius: 3px;
+  background: linear-gradient(160deg, var(--brass-hi), var(--brass-lo));
+  color: var(--brass-ink);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.35) inset, 0 -1px 0 rgba(0,0,0,0.25) inset, 0 6px 18px rgba(0,0,0,0.25);
+  pointer-events: none; user-select: none; max-width: calc(100vw - 32px);
+}
+.plaque h1 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 1.25rem; letter-spacing: 0.22em; text-transform: uppercase; line-height: 1.1; text-wrap: balance; }
+.plaque p { margin: 3px 0 0; font-size: 0.72rem; letter-spacing: 0.08em; opacity: 0.85; }
+
+.hint {
+  position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 78px); transform: translateX(-50%);
+  padding: 7px 14px; border-radius: 999px; background: var(--glass); border: 1px solid var(--glass-line);
+  font-size: 0.78rem; color: var(--ink-soft); letter-spacing: 0.02em; white-space: nowrap;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: opacity 0.6s ease; pointer-events: none;
+}
+
+.loader {
+  position: fixed; inset: 0; display: grid; place-items: center; background: var(--backdrop);
+  transition: opacity 0.9s ease; z-index: 5;
+}
+.loader.done { opacity: 0; pointer-events: none; }
+.loader .card { display: grid; gap: 14px; justify-items: center; padding-inline: 16px; text-align: center; }
+.loader h2 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(1.6rem, 5vw, 2.4rem); letter-spacing: 0.24em; text-transform: uppercase; color: #1d2a33; }
+.loader .bar { width: min(260px, 70vw); height: 3px; background: rgba(29, 42, 51, 0.18); border-radius: 2px; overflow: hidden; }
+.loader .bar i { display: block; height: 100%; width: 0%; background: #1d2a33; transition: width 0.3s ease; }
+.loader .status { font-size: 0.82rem; color: rgba(29, 42, 51, 0.75); letter-spacing: 0.03em; min-height: 1.2em; }
+.loader .err { color: #6b1d12; max-width: 32ch; }
+
+
+.dock {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+  display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 16px;
+  background: var(--glass); border: 1px solid var(--glass-line); box-shadow: 0 8px 28px rgba(0,0,0,0.22);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); max-width: calc(100vw - 32px);
+  z-index: 3;
+}
+.dock .group { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.dock .sep { width: 1px; align-self: stretch; background: var(--glass-line); }
+.iconbtn {
+  display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; border: 0;
+  background: transparent; color: var(--ink); cursor: pointer; flex: none;
+}
+.iconbtn:hover { background: rgba(255,255,255,0.08); }
+.iconbtn svg { width: 18px; height: 18px; }
+.iconbtn[aria-pressed="true"] { color: var(--brass-hi); }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--brass-hi); outline-offset: 2px; }
+.animal-finder { position:fixed; left:16px; top:calc(env(safe-area-inset-top, 0px) + 88px); z-index:3; display:grid; gap:5px; max-width:calc(100vw - 80px); }
+.animal-finder select { box-sizing:border-box; width:220px; max-width:100%; min-height:40px; padding:8px 12px; border:1px solid var(--glass-line); border-radius:10px; background:var(--glass); color:var(--ink); font:500 .84rem var(--font-ui); cursor:pointer; backdrop-filter:blur(10px); }
+.animal-finder optgroup,.animal-finder option { background:#28363b; color:var(--ink); }
+.animal-finder .paused-note { padding:6px 10px; border-radius:8px; background:var(--glass); color:var(--brass-hi); font-size:.72rem; }
+.animal-finder .paused-note button { color:inherit; font:inherit; background:none; border:0; padding:0; text-decoration:underline; cursor:pointer; }
+.model-status { box-sizing:border-box; width:220px; max-width:100%; padding:10px; border-radius:10px; background:var(--glass); color:var(--ink); font-size:.8rem; }
+.model-status button { color:inherit; background:transparent; border:1px solid var(--glass-line); border-radius:8px; padding:8px; cursor:pointer; }
+.clock { display: grid; gap: 1px; min-width: 104px; }
+.clock b { font-weight: 600; font-size: 0.86rem; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+.clock span { font-size: 0.7rem; color: var(--ink-soft); white-space: nowrap; }
+input[type=range].time { -webkit-appearance: none; appearance: none; width: 168px; height: 4px; border-radius: 2px; background: linear-gradient(90deg, #1b2a44 0%, #e9a35c 26%, #bcd6ea 50%, #e9a35c 74%, #1b2a44 100%); cursor: pointer; }
+input[type=range].time::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: linear-gradient(160deg, var(--brass-hi), var(--brass-lo)); border: 2px solid rgba(20,20,20,0.35); }
+input[type=range].time::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--brass-hi); border: 2px solid rgba(20,20,20,0.35); }
+.views { display: flex; gap: 2px; min-width:0; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--brass-lo) transparent; }
+.views::-webkit-scrollbar { height: 5px; }
+.views::-webkit-scrollbar-thumb { background: var(--brass-lo); border-radius: 4px; }
+.view-set { display:inline-flex; align-items:center; gap:2px; flex:none; }
+.view-label { color:var(--brass-hi); font-size:.65rem; text-transform:uppercase; letter-spacing:.06em; padding:0 6px; }
+.views button {
+  border: 0; background: transparent; color: var(--ink-soft); font: 500 0.8rem var(--font-ui); letter-spacing: 0.02em;
+  padding: 8px 10px; border-radius: 9px; cursor: pointer; white-space: nowrap;
+}
+.views button:hover { color: var(--ink); background: rgba(255,255,255,0.06); }
+.views button[aria-current="true"] { color: var(--brass-hi); background: rgba(227,203,148,0.1); }
+
+.weather-panel { box-sizing: border-box; }
+.weather-panel fieldset { border:0; padding:0; margin:12px 0; min-width:0; }
+.weather-panel legend { font-size:.74rem; color:var(--brass-hi); margin-bottom:8px; }
+.weather-options { display:flex; gap:4px; flex-wrap:wrap; }
+.weather-options .pill { padding:8px 9px; font-size:.75rem; }
+#weather { position:relative; font-size:20px; }
+#weatherBadge { position:absolute; right:1px; top:0; font:600 9px var(--font-ui); color:var(--brass-hi); }
+.weather-note { font-size:.74rem; color:var(--ink-soft); line-height:1.4; margin:0; }
+.panel {
+  position: fixed; right: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 82px); width: min(320px, calc(100vw - 32px));
+  padding: 14px 16px 14px; border-radius: 14px; background: var(--glass); border: 1px solid var(--glass-line);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 10px 30px rgba(0,0,0,0.25); z-index: 4;
+}
+.panel .kicker { font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brass-hi); }
+.panel h3 { margin: 4px 0 0; font-family: var(--font-display); font-weight: 400; font-size: 1.3rem; letter-spacing: 0.04em; text-wrap: balance; }
+.panel .latin { margin: 1px 0 10px; font-style: italic; font-size: 0.82rem; color: var(--ink-soft); }
+.panel p.fact { margin: 0 0 12px; font-size: 0.86rem; line-height: 1.5; color: var(--ink); }
+.panel .row { display: flex; gap: 8px; align-items: center; }
+.pill {
+  border: 1px solid var(--glass-line); background: rgba(255,255,255,0.06); color: var(--ink); font: 500 0.8rem var(--font-ui);
+  padding: 7px 12px; border-radius: 999px; cursor: pointer;
+}
+.pill[aria-pressed="true"] { background: linear-gradient(160deg, var(--brass-hi), var(--brass-lo)); color: var(--brass-ink); border-color: transparent; }
+.panel .close { position: absolute; top: 8px; right: 8px; }
+
+.about { position: fixed; right: 16px; top: calc(env(safe-area-inset-top, 0px) + 16px); width: min(340px, calc(100vw - 32px)); z-index: 4; bottom: auto; max-height: calc(100dvh - 40px); overflow-y: auto; box-sizing: border-box; }
+.about h3 { font-size: 1.1rem; }
+.about p { margin: 6px 0 0; font-size: 0.78rem; line-height: 1.5; color: var(--ink-soft); }
+.about a { color: var(--brass-hi); }
+.about select { display:block; max-width:100%; min-height:34px; margin-top:5px; font:inherit; }
+.topbtn { position: fixed; right: 16px; top: calc(env(safe-area-inset-top, 0px) + 16px); background: var(--glass); border: 1px solid var(--glass-line); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 3; }
+
+@media (max-width: 760px) {
+  .dock { flex-wrap: wrap; justify-content: center; width: calc(100vw - 32px); box-sizing: border-box; gap: 6px; }
+  .dock .sep { display: none; }
+  .dock .group.timeg { width: 100%; justify-content: space-between; }
+  input[type=range].time { flex: 1; width: auto; min-width: 0; }
+  .views { width: 100%; justify-content: flex-start; }
+  .panel { right: 16px; left: 16px; width: auto; bottom: calc(env(safe-area-inset-bottom, 0px) + 116px); padding: 12px 14px; }
+  .panel p.fact { font-size: 0.82rem; margin-bottom: 10px; }
+  .clock { min-width: 74px; }
+  .hint { bottom: calc(env(safe-area-inset-bottom, 0px) + 116px); white-space: normal; text-align: center; width: max-content; max-width: calc(100vw - 48px); }
+  .panel.about { bottom: auto; top: calc(env(safe-area-inset-top, 0px) + 64px); max-height: calc(100dvh - 80px); }
+}
+
+@media (max-width: 520px) {
+  .plaque h1 { font-size: 1.02rem; }
+  .plaque p { font-size: 0.66rem; }
+  .hint { font-size: 0.72rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loader, .hint { transition: none; }
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="plaque" aria-label="Pocket World, a living island diorama">
+  <h1>Pocket World</h1>
+  <p>A living island diorama · scale 1:400</p>
+</div>
+<div class="animal-finder" aria-label="Animal finder">
+  <select id="animalSelect" aria-label="Find an animal" disabled><option value="">Loading animals…</option></select>
+  <div id="modelStatus" class="model-status" hidden><span id="modelStatusText" role="status" aria-live="polite"></span> <button id="retryModels" type="button" hidden>Retry wildlife</button></div>
+  <div id="animalsPaused" class="paused-note" hidden>Island paused · <button id="resumeAnimals" type="button">resume animal movement</button></div>
+</div>
+<div class="hint" id="hint">Drag to turn · scroll or pinch to zoom · choose an animal to meet it</div>
+<nav class="dock" id="dock" aria-label="Diorama controls">
+  <div class="group timeg">
+    <button class="iconbtn" id="play" aria-pressed="true" aria-label="Pause the day">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path id="playIcon" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+    </button>
+    <input class="time" id="time" type="range" min="0" max="24" step="0.05" value="16" aria-label="Time of day">
+    <div class="clock" aria-live="off"><b id="clockTime">16:00</b><span id="clockName">Afternoon</span></div>
+    <button class="iconbtn" id="sound" aria-pressed="false" aria-label="Turn sound on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" stroke="none"/><path id="soundWave" d="M16 9l5 6M21 9l-5 6"/></svg>
+    </button>
+    <button class="iconbtn" id="weather" aria-label="Choose weather and wind" aria-controls="weatherPanel" aria-expanded="false"><span id="weatherIcon" aria-hidden="true">☀</span><span id="weatherBadge" aria-hidden="true">A</span></button>
+  <button class="iconbtn" id="detailBtn" aria-label="Rendering settings" title="Rendering settings">⚙</button>
+  </div>
+  <div class="sep"></div>
+  <div class="views" id="views" role="group" aria-label="Viewpoints">
+    <button data-view="overview" aria-current="true">Overview</button>
+    <span class="view-set" role="group" aria-label="Wildlife"><span class="view-label" aria-hidden="true">Wildlife</span>
+    <button data-view="modelsLand" title="Click again to inspect the next land animal">Land wildlife ↻</button>
+    <button data-view="modelsBirds" title="Click again to switch between the eagle and jungle bird">Birdlife ↻</button>
+    <button data-view="modelsSea" title="Click again to inspect the next marine species">Marine life ↻</button>
+    </span>
+    <span class="view-set" role="group" aria-label="Places"><span class="view-label" aria-hidden="true">Places</span>
+    <button data-view="reef">Reef</button>
+    <button data-view="meadow">Meadow</button>
+    <button data-view="jungle">Jungle</button>
+    <button data-view="bamboo">Bamboo</button>
+    <button data-view="peak">Peak</button>
+    <button data-view="waterfall">Waterfall</button>
+    <button data-view="stream">Stream</button>
+    <button data-view="sky">Sky</button>
+    </span>
+  </div>
+</nav>
+<section class="panel weather-panel" id="weatherPanel" aria-label="Weather and wind" hidden>
+  <button class="iconbtn close" id="weatherClose" aria-label="Close weather panel">×</button>
+  <div class="kicker">The sky above</div>
+  <fieldset><legend>Weather</legend><div class="weather-options"><button class="pill" data-weather="auto" aria-pressed="true">Auto</button><button class="pill" data-weather="clear" aria-pressed="false">Clear</button><button class="pill" data-weather="cloudy" aria-pressed="false">Cloudy</button><button class="pill" data-weather="rain" aria-pressed="false">Rain</button><button class="pill" data-weather="storm" aria-pressed="false">Storm</button></div></fieldset>
+  <fieldset><legend>Wind</legend><div class="weather-options"><button class="pill" data-wind="auto" aria-pressed="true">Auto</button><button class="pill" data-wind="calm" aria-pressed="false">Calm</button><button class="pill" data-wind="breezy" aria-pressed="false">Breezy</button><button class="pill" data-wind="windy" aria-pressed="false">Windy</button></div></fieldset>
+  <p class="weather-note">Changes arrive gently. Pause freezes animal movement, the day and weather; sound is always opt-in.</p>
+  <p class="weather-note" id="weatherAnnouncement" role="status" aria-live="polite"></p>
+</section>
+<button class="iconbtn topbtn" id="aboutBtn" aria-label="About this diorama" aria-expanded="false" aria-controls="about">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>
+</button>
+<section class="panel about" id="about" hidden aria-label="About">
+  <button class="iconbtn close" id="aboutClose" aria-label="Close">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <div class="kicker">About</div>
+  <h3>Pocket World</h3>
+  <p>The terrain, glass-sided sea and plants are built in code with Three.js and WebGL. The selected supplied wildlife uses native model shapes, rigs, materials and motion where available. Tiger walking, added whale propulsion, static fish/turtle motion and eagle wing articulation are explicitly generated adaptations, not newly discovered source clips. Stag/deer remain removed. The world retains existing birds, tuna and manta alongside the new land and marine species.</p>
+  <p>Drag to turn the diorama, scroll or pinch to zoom, right-drag or two-finger drag to pan. Tap an animal to learn about it and follow it around.</p>
+  <p>Weather changes on its own; tap the cloud button to choose it.</p>
+  <p><label for="qualitySelect">Rendering detail</label> <select id="qualitySelect" aria-label="Rendering detail"><option value="auto">Automatic</option><option value="performance">Performance · minimal effects</option><option value="low">Balanced · lighter scenery and shadows</option><option value="high">High detail</option></select><br><span id="qualityDescription"></span> Changing detail reloads the island. All animal types are retained.</p>
+  <p>Supplied-model licences include non-commercial restrictions. This is a private preview, not clearance for a public or commercial release.</p>
+  <p>Manta: <a href="https://sketchfab.com/3d-models/model-84b-manta-ray-swimming-73e539c7ac5940e5aad4c58257df9725" target="_blank" rel="noopener noreferrer">Model 84B — DigitalLife3D</a>, <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener noreferrer">CC-BY-NC 4.0</a>. Unmodified supplied model; runtime scale, animation and underwater shading adapted. Private non-commercial preview only.</p>
+  <p>Bird: <a href="https://sketchfab.com/3d-models/dove-bird-rigged-6b91be2a28fb4404a2d57d5ca98bd4dc" target="_blank" rel="noopener noreferrer">Dove Bird Rigged — FourthGreen</a>, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC-BY 4.0</a>. The supplied appearance is orange-breasted, not a white dove; landing/roost support is adapted separately.</p>
+  <p>Tuna: <a href="https://sketchfab.com/3d-models/tuna-fish-c5fad940863f47f784d792ca95e16b42" target="_blank" rel="noopener noreferrer">Tuna Fish — GoldenZtuff</a>, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC-BY 4.0</a>. Original supplied model, runtime scale/animation/underwater shading adapted; lightweight procedural fish at distance.</p>
+  <details><summary>Selected wildlife sources and licences</summary>
+  <p><a href="https://sketchfab.com/3d-models/white-tiger-rigged-animated-9dd099d283e54f99b7cbd40b531b1a29" target="_blank" rel="noopener noreferrer">White Tiger (RIGGED ANIMATED) — CGJAY1111 (https://sketchfab.com/CGJAY1111)</a>. CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/). Private owner preview; original bytes retained.</p>
+  <p><a href="https://sketchfab.com/3d-models/rhino-animation-walk-a915d9179fe6422b9d669a3a0d726b8e" target="_blank" rel="noopener noreferrer">Rhino Animation Walk — GremorySaiyan (https://sketchfab.com/GremorySaiyan)</a>. CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/). Private owner preview; original bytes retained.</p>
+  <p><a href="https://sketchfab.com/3d-models/bear-realistic-3d-model-demo-free-8ba2b39b31474ddd96d95d47119250b1" target="_blank" rel="noopener noreferrer">BEAR - Realistic 3D Model (DEMO FREE) — WildMesh 3D (https://sketchfab.com/WildMesh_3D)</a>. CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/). Private owner preview; original bytes retained.</p>
+  <p><a href="https://sketchfab.com/3d-models/wolf-realistic-3d-model-demo-free-8840b859a566485c874a27b1731e1db8" target="_blank" rel="noopener noreferrer">WOLF - Realistic 3D Model (DEMO FREE) — WildMesh 3D (https://sketchfab.com/WildMesh_3D)</a>. CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/). Private owner preview; original bytes retained.</p>
+  <p><a href="https://sketchfab.com/3d-models/alligator-realistic-3d-model-demo-free-80af5463728149baba78b12f70f6ff5c" target="_blank" rel="noopener noreferrer">ALLIGATOR - Realistic 3D Model (DEMO FREE) — WildMesh 3D (https://sketchfab.com/WildMesh_3D)</a>. CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/). Private owner preview; original bytes retained.</p>
+  <p><a href="https://sketchfab.com/3d-models/realistic-shark-e913e5092d2341749ff66e4359b1e4a3" target="_blank" rel="noopener noreferrer">Realistic Shark — MotionStreamStudios (https://sketchfab.com/MotionStreamStudios)</a>. CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/). Private owner preview; original bytes retained.</p>
+  <p><a href="https://sketchfab.com/3d-models/rigged-whale-96ea18a2857443d485a12082418071ea" target="_blank" rel="noopener noreferrer">Rigged whale — assetfactory (https://sketchfab.com/assetfactory)</a>. SKETCHFAB Standard (https://sketchfab.com/licenses). Private owner preview; original bytes retained.</p>
+  <p><a href="https://sketchfab.com/3d-models/school-of-fish-25494f5c4ead471ab8205aadfbfec0bc" target="_blank" rel="noopener noreferrer">School Of Fish — Titanas YT (https://sketchfab.com/pcarnage252)</a>. CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/). Private owner preview; original bytes retained.</p>
+  <p><a href="https://sketchfab.com/3d-models/sea-turtle-low-poly-c92be549c8194136914883309a13a6b5" target="_blank" rel="noopener noreferrer">Sea turtle low poly — C.J..Goldman (https://sketchfab.com/C.J..Goldman)</a>. CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/). Private owner preview; original bytes retained.</p>
+  <p><a href="https://sketchfab.com/3d-models/model-101a-adult-common-dolphin-806e869737644122a57da96340fa167e" target="_blank" rel="noopener noreferrer">Model 101A - Adult Common Dolphin — DigitalLife3D (https://sketchfab.com/DigitalLife3D)</a>. CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/). Private owner preview; original bytes retained.</p>
+  <p><a href="https://sketchfab.com/3d-models/fish-74e57a9de7a24975b02d236ea3be614f" target="_blank" rel="noopener noreferrer">Fish — assetfactory (https://sketchfab.com/assetfactory)</a>. SKETCHFAB Standard (https://sketchfab.com/licenses). Private owner preview; original bytes retained.</p>
+  <p><a href="https://sketchfab.com/3d-models/elephant-4ae161372d6a4219a87340339d1ffe03" target="_blank" rel="noopener noreferrer">Elephant — Rukh3D (https://sketchfab.com/rukh3d)</a>. CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/). Original source bytes retained; native walking and idle on a qualified habitat route.</p>
+  <p><a href="https://sketchfab.com/3d-models/eagle-c6f0f69f366f478cb9c2c19527f27420" target="_blank" rel="noopener noreferrer">Eagle — victorberdugo1 (https://sketchfab.com/victorberdugo1)</a>. CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/). Original source bytes retained; generated wing articulation, not a source clip.</p>
+  <p>Near/far derivatives preserve native rigs, image bytes and clips; reduced skin interpolation and shark coordinate repair are documented, not pixel-identical author originals. No public redistribution clearance or new licence grant is asserted.</p>
+  </details>
+  <p>Trees are grown with an algorithm adapted from EZ-Tree by Daniel Greenheck (MIT licence), with its leaf and ground textures. Bark photographs come from Poly Haven and TextureCan (CC0). The water normal map comes from the three.js examples (MIT).</p>
+</section>
+<section class="panel" id="info" hidden aria-live="polite">
+  <button class="iconbtn close" id="infoClose" aria-label="Close">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+  <div class="kicker" id="infoKicker">On the island</div>
+  <h3 id="infoName">Bengal tiger</h3>
+  <div class="latin" id="infoLatin">Panthera tigris tigris</div>
+  <p class="fact" id="infoFact"></p>
+  <div class="row"><button class="pill" id="follow" aria-pressed="false">Follow</button></div>
+</section>
+<div class="loader" id="loader" role="status" aria-live="polite">
+  <div class="card">
+    <h2>Pocket World</h2>
+    <div class="bar"><i id="bar"></i></div>
+    <div class="status" id="status">Preparing the workbench…</div>
+  </div>
+</div>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

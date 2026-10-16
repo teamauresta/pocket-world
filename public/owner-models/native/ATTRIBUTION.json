@@ -1,0 +1,134 @@
+[
+  {
+    "key": "tiger",
+    "file": "tiger.glb",
+    "originalSha256": "88a420b7d405e13ffb50ed2d7c1d0eceebb4e25002ce32c83af23dd561fb2240",
+    "author": "CGJAY1111 (https://sketchfab.com/CGJAY1111)",
+    "title": "White Tiger (RIGGED ANIMATED)",
+    "source": "https://sketchfab.com/3d-models/white-tiger-rigged-animated-9dd099d283e54f99b7cbd40b531b1a29",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "privateOwnerPreviewOnly": true
+  },
+  {
+    "key": "rhino",
+    "file": "rhino.glb",
+    "originalSha256": "cee4989e2c417c5e7003518c227922333b526c56ae38d0651fe73faa02b70667",
+    "author": "GremorySaiyan (https://sketchfab.com/GremorySaiyan)",
+    "title": "Rhino Animation Walk",
+    "source": "https://sketchfab.com/3d-models/rhino-animation-walk-a915d9179fe6422b9d669a3a0d726b8e",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "privateOwnerPreviewOnly": true
+  },
+  {
+    "key": "bear",
+    "file": "bear.glb",
+    "originalSha256": "fbf5c9cee54516a18d8fd5986c6ff2b441ec0afe5f688168098d18df7360a224",
+    "author": "WildMesh 3D (https://sketchfab.com/WildMesh_3D)",
+    "title": "BEAR - Realistic 3D Model (DEMO FREE)",
+    "source": "https://sketchfab.com/3d-models/bear-realistic-3d-model-demo-free-8ba2b39b31474ddd96d95d47119250b1",
+    "license": "CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)",
+    "privateOwnerPreviewOnly": true
+  },
+  {
+    "key": "wolf",
+    "file": "wolf.glb",
+    "originalSha256": "4bbe8043b30c9f1abb55eaf09313ef430c8f22a9c7d1b9e375d496e511222178",
+    "author": "WildMesh 3D (https://sketchfab.com/WildMesh_3D)",
+    "title": "WOLF - Realistic 3D Model (DEMO FREE)",
+    "source": "https://sketchfab.com/3d-models/wolf-realistic-3d-model-demo-free-8840b859a566485c874a27b1731e1db8",
+    "license": "CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)",
+    "privateOwnerPreviewOnly": true
+  },
+  {
+    "key": "alligator",
+    "file": "alligator_-_realistic_3d_model_demo_free.glb",
+    "originalSha256": "306e91d338060cc75da3cb33ae628b435f8c014d73fa380e7c70cfc8e69516b0",
+    "author": "WildMesh 3D (https://sketchfab.com/WildMesh_3D)",
+    "title": "ALLIGATOR - Realistic 3D Model (DEMO FREE)",
+    "source": "https://sketchfab.com/3d-models/alligator-realistic-3d-model-demo-free-80af5463728149baba78b12f70f6ff5c",
+    "license": "CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)",
+    "privateOwnerPreviewOnly": true
+  },
+  {
+    "key": "shark",
+    "file": "realistic_shark.glb",
+    "originalSha256": "875866919d36e888c14674a6e9143b6164dd99c7556335999c8e8ba6f5252ae4",
+    "author": "MotionStreamStudios (https://sketchfab.com/MotionStreamStudios)",
+    "title": "Realistic Shark",
+    "source": "https://sketchfab.com/3d-models/realistic-shark-e913e5092d2341749ff66e4359b1e4a3",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "privateOwnerPreviewOnly": true
+  },
+  {
+    "key": "whale",
+    "file": "rigged_whale.glb",
+    "originalSha256": "df65c1e168c500f6696aa4edcc6b8a3153e359b57c2a08d7af447da369bdcdcf",
+    "author": "assetfactory (https://sketchfab.com/assetfactory)",
+    "title": "Rigged whale",
+    "source": "https://sketchfab.com/3d-models/rigged-whale-96ea18a2857443d485a12082418071ea",
+    "license": "SKETCHFAB Standard (https://sketchfab.com/licenses)",
+    "privateOwnerPreviewOnly": true
+  },
+  {
+    "key": "school",
+    "file": "school_of_fish.glb",
+    "originalSha256": "8e03e5605671c9bcc908ce76e3e57527d44a2db0e882200a8ae7e19c031e52e1",
+    "author": "Titanas YT (https://sketchfab.com/pcarnage252)",
+    "title": "School Of Fish",
+    "source": "https://sketchfab.com/3d-models/school-of-fish-25494f5c4ead471ab8205aadfbfec0bc",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "privateOwnerPreviewOnly": true
+  },
+  {
+    "key": "turtle",
+    "file": "sea_turtle_low_poly.glb",
+    "originalSha256": "d1624935729f294fa4a191141276ab9f48b47a826f438d2615e9416708adebe4",
+    "author": "C.J..Goldman (https://sketchfab.com/C.J..Goldman)",
+    "title": "Sea turtle low poly",
+    "source": "https://sketchfab.com/3d-models/sea-turtle-low-poly-c92be549c8194136914883309a13a6b5",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "privateOwnerPreviewOnly": true
+  },
+  {
+    "key": "dolphin",
+    "file": "model_101a_-_adult_common_dolphin.glb",
+    "originalSha256": "bb51721a15438379a8bd00c6b6347af575e563fd8f06e40f200e7da52737d1a6",
+    "author": "DigitalLife3D (https://sketchfab.com/DigitalLife3D)",
+    "title": "Model 101A - Adult Common Dolphin",
+    "source": "https://sketchfab.com/3d-models/model-101a-adult-common-dolphin-806e869737644122a57da96340fa167e",
+    "license": "CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)",
+    "privateOwnerPreviewOnly": true
+  },
+  {
+    "key": "fish",
+    "file": "fish.glb",
+    "originalSha256": "ac752e6ba6646be6c14792365fb29d44c10b694c5e9f8dc4d57de31630cd2a91",
+    "author": "assetfactory (https://sketchfab.com/assetfactory)",
+    "title": "Fish",
+    "source": "https://sketchfab.com/3d-models/fish-74e57a9de7a24975b02d236ea3be614f",
+    "license": "SKETCHFAB Standard (https://sketchfab.com/licenses)",
+    "privateOwnerPreviewOnly": true
+  },
+  {
+    "key": "elephant",
+    "file": "elephant.glb",
+    "originalSha256": "a37ecab1841398b63e765ce7a670c1526bce1d93de6349e01b05603a33b927b7",
+    "author": "Rukh3D (https://sketchfab.com/rukh3d)",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "source": "https://sketchfab.com/3d-models/elephant-4ae161372d6a4219a87340339d1ffe03",
+    "title": "Elephant",
+    "privateOwnerPreviewOnly": true,
+    "runtimeChanges": "uniform normalization, calibrated native walk/idle and habitat patrol"
+  },
+  {
+    "key": "eagle",
+    "file": "eagle.glb",
+    "originalSha256": "d185ca682ac8f938dd9ab69237cfae6c1619fd20a3e46c59ce6762e5da666d7a",
+    "author": "victorberdugo1 (https://sketchfab.com/victorberdugo1)",
+    "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+    "source": "https://sketchfab.com/3d-models/eagle-c6f0f69f366f478cb9c2c19527f27420",
+    "title": "Eagle",
+    "privateOwnerPreviewOnly": true,
+    "runtimeChanges": "generated wing articulation"
+  }
+]

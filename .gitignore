@@ -1,0 +1,29 @@
+node_modules
+dist
+.DS_Store
+*.local
+publish/
+# Supplied/derived wildlife binaries stay private; source licensing does not cover them.
+public/owner-models/**/*.glb
+public/owner-models/*.glb
+scripts/**/__pycache__/
+review/*
+!review/*.mjs
+!review/*.md
+!review/*.py
+
+# Local secrets and machine-specific configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+credentials.json
+credentials/
+.aws/
+.kube/
+.ssh/
